@@ -1,45 +1,260 @@
-<img src="https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png" style="margin: 0;">
+# Show all databases
 
-Welcome USER_NAME,
+```
+show all databases
+```
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. You can safely delete this README.md file, or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use.
+# Switch database
 
-## Gitpod Reminders
+```
+use sample_airbnb
+```
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
+Once we have switched to a database, we have a variable name `db`. It
+represents the currently used database.
 
-`python3 -m http.server`
+# Show all collections
 
-A blue button should appear to click: *Make Public*,
+```
+show collections
+```
 
-Another blue button should appear to click: *Open Browser*.
+# Retrieve documents from collections
+```
+db.listingsAndReviews.find()
+```
 
-To run a backend Python file, type `python3 app.py`, if your Python file is named `app.py` of course.
+# Projecting only certain fields in the documents
+```
+db.listingsAndReviews.find({},{
+    'name': 1,
+    'summary': 1,
+    'property_type': 1
+}).pretty()
+```
 
-A blue button should appear to click: *Make Public*,
+# Filtering
 
-Another blue button should appear to click: *Open Browser*.
+## Find by an exact value for a field
 
-In Gitpod you have superuser security privileges by default. Therefore you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
+Show all listings with exactly 2 beds.
 
-## Updates Since The Instructional Video
+```
+db.listingsAndReviews.find({
+    'beds': 2
+}, {
+    'name': 1,
+    'beds': 1
+}).pretty()
+```
 
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
+##  Find by a field inside an object
 
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
+```
+db.listingsAndReviews.find({
+    'address.country':'Brazil'
+},{
+    'name': 1,
+    'address.country': 1
+}).pretty()
+```
 
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
+## Find by multiple critera?
 
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
+If we want more than one criteria, then we just put them 
+as additional properties in the first argument (which is an object)
 
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
+```
+db.listingsAndReviews.find({
+    'address.country': 'Brazil',
+    'beds': 2
+}, {
+    'name': 1,
+    'beds': 1,
+    'address.country': 1
+}).pretty()
+```
 
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
+## Find by inequality (a range)
 
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
+```
+db.listingsAndReviews.find({
+    'beds': {
+        '$gte': 3
+    },
+    'address.country':'Brazil'
+},{
+    'name': 1,
+    'beds': 1,
+    'address.country': 1
+}).pretty()
+```
 
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
+* `$gt` is greater than
+* `$lt` is lesser than
+* `$gte` is greater than or equal
+* `$lte` is lesser than or equal
 
---------
+### Combining inequality
 
-Happy coding!
+We just put more ineqality properties into the `beds` object.
+
+```
+db.listingsAndReviews.find({
+    'beds': {
+        '$gte': 3,
+        '$lte': 5
+    },
+    'address.country': 'Brazil'
+}, {
+    'name': 1,
+    'address.country': 1,
+    'beds': 1
+}).pretty()
+```
+
+Eg. Find listings in Brazil that have between 3 to 5 beds but no more than 4 bedrooms
+
+```
+db.listingsAndReviews.find({
+    'beds': {
+        '$gte': 3,
+        '$lte': 5
+    },
+    'bedrooms: {
+        '$lte': 4
+    },
+    'address.country': 'Brazil'
+}, {
+    'name': 1,
+    'address.country': 1,
+    'beds': 1,
+    'bedrooms': 1
+}).pretty()
+```
+
+# Solutions to question 1
+
+Q1
+```
+db.restaurants.find({
+    'cuisine':'Hamburgers'
+},{
+    'address': 1,
+    'cuisine': 1
+}).pretty()
+```
+
+Q2
+```
+db.restaurants.find({
+   'cuisine': 'American',
+   'borough': 'Bronx' 
+}, {
+    'address': 1,
+    'cuisine': 1,
+    'borough': 1
+}).pretty()
+```
+
+Q3
+```
+db.restaurants.find({
+    'address.street':'Stillwell Avenue'
+}, {
+    'address': 1
+}).pretty()
+```
+
+## Count how many records there in a results?
+
+Find the number of listings in Brazil that more than 10 beds
+
+```
+db.listingsAndReviews.find({
+    'address.country':'Brazil',
+    'beds': {
+        '$gt': 10
+    }
+}).count()
+```
+
+## Find by an element inside an array
+
+Find all listings that has waterfront as an amentity.
+
+```
+db.listingsAndReviews.find({
+    'amenities':'Waterfront'
+},{
+    'name': 1,
+    'amenities': 1
+}).pretty()
+```
+
+## Find by more than one element in array, and all those elements must match
+
+Find all listings that have both Watefront and Beachfront in the amenities array.
+
+```
+db.listingsAndReviews.find({
+    'amenities': {
+        '$all':['Waterfront', 'Beachfront']
+    }
+},{
+    'name': 1,
+    'amenities': 1
+}).pretty()
+```
+
+## Find by elements in array where at least one exists
+
+```
+db.listingsAndReviews.find({
+    'amenities': {
+        '$in': ['Stove', 'Oven', 'Microwave']
+    }
+},{
+    'name': 1,
+    'amenities': 1
+}).pretty()
+```
+
+## Find all listings in either Canada or Brazil
+```
+db.listingsAndReviews.find({
+    'address.country': {
+        '$in':['Brazil', 'Canada']
+    }
+},{
+    'name': 1,
+    'address.country': 1
+}).pretty()
+```
+
+## Find all listings not from Brazil
+```
+db.listingsAndReviews.find({
+    'address.country': {
+        '$not':{
+            '$in':['Brazil']
+        }
+    }
+},{
+    'name': 1,
+    'address.country': 1
+}).pretty().limit(10)
+```
+
+## Find all listings reviewed before 2017
+```
+db.listingsAndReviews.find({
+    'first_review': {
+        '$lt': ISODate('2017-01-01')
+    }
+},{
+    'name': 1,
+    'first_review': 1
+}).pretty()
+```
+
