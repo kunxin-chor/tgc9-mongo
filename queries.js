@@ -1,21 +1,32 @@
-db.restaurants.find({
-    'cuisine':'Hamburgers'
-},{
-    'address': 1,
-    'cuisine': 1
-}).pretty()
+// 1. use database
+// assume database already exists
+use fake_school;
 
-db.restaurants.find({
-   'cuisine': 'American',
-   'borough': 'Bronx' 
-}, {
-    'address': 1,
-    'cuisine': 1,
-    'borough': 1
-}).pretty()
+db.students.insert({
+    "name":"Jane Doe",
+    "age": 13,
+    "subjects": [
+        "Defense Against the Dark Arts",
+        "Charms",
+        "History of Magic"
+    ]
+})
 
-db.restaurants.find({
-    'address.street':'Stillwell Avenue'
-}, {
-    'address': 1
-}).pretty()
+db.students.insertMany([
+    {
+        'name':"James Verses",
+        'age': 14,
+        'subjects':[
+            'Transfiguration',
+            'Alchemy'
+        ]
+    },
+    {
+        'name':'Jonathon Goh',
+        'age': 12,
+        'subjects':[
+            'Divination',
+            'Study of Ancient Runes'
+        ]
+    }
+]);

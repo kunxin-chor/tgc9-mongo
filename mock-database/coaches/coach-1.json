@@ -1,0 +1,9 @@
+{
+    "$_id": ObjectId("123456"),
+    "name": "David Gan",
+    "awards": [
+        "Lifesaving Award Gold",
+        "Diving Silver"
+    ],
+    "gender":"male"
+}
